@@ -1,4 +1,4 @@
-#canvas {
+#board {
     background-color: gray;
     height: 500px;
     position: relative;
@@ -11,6 +11,22 @@
     position: absolute;
     text-align: center;
     width: 20px;
+}
+
+.facing-north {
+    border-top: 1px solid white;
+}
+
+.facing-east {
+    border-right: 1px solid white;
+}
+
+.facing-south {
+    border-bottom: 1px solid white;
+}
+
+.facing-west {
+    border-left: 1px solid white;
 }
 
 .bear {

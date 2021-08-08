@@ -9,12 +9,63 @@
     <body>
         <h1>Critters</h1>
 
-        <div id="canvas">
+        <div id="board">
         </div>
-    
+
+        <!-- TODO: Clean up with Bootstrap. -->
+        <div>
+            <button id="run">Run/Pause</button>
+        </div>
+
+        <div>&nbsp;</div>
+
+        <div id="configuration">
+            <div>
+                <h2>Critter Counts</h2>
+                <div>
+                    <label>Bears</label>
+                    <input id="bearCount" value="30" />
+                </div>
+
+                <div>
+                    <label>Rabbits</label>
+                    <input id="rabbitCount" value="30" />
+                </div>
+
+                <div>
+                    <label>Trees</label>
+                    <input id="treeCount" value="30" />
+                </div>
+
+                <div>
+                    <label>Carrots</label>
+                    <input id="carrotCount" value="30" />
+                </div>
+            </div>
+            <div>
+                <h2>Simulation Settings</h2>
+                <div>
+                    <label>Infect From Front Rate</label>
+                    <input id="infectFromFrontRate" value="50" />%
+                </div>
+
+                <div>
+                    <label>Infect From Side Rate</label>
+                    <input id="infectFromSideRate" value="75" />%
+                </div>
+
+                <div>
+                    <label>Infect From Behind Rate</label>
+                    <input id="infectFromBehindRate" value="100" />%
+                </div>
+
+            </div>
+            <button id="reset">Reset</button>
+        </div>
+
         <script type="text/javascript">
             let app = new App();
-            app.run();
+            app.initialize();
         </script>
     </body>
 </html>

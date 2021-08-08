@@ -1,7 +1,13 @@
 class App {
     board: Board = new Board();
     critters: CritterInstance[] = [];
+    
     gameOver: boolean = false;
+    keepRunning: boolean = false;
+
+    infectFromFrontRate: number = 50;
+    infectFromSideRate: number = 75;
+    infectFromBehindRate: number = 100;
 
     public constructor() { }
 
@@ -9,7 +15,9 @@ class App {
         this.runTurns(this.critters.length);
 
         if (!this.gameOver) {
-            window.setTimeout(() => this.nextTurn(), 100);
+            if (this.keepRunning) {
+                window.setTimeout(() => this.nextTurn(), 100);
+            }
         }
         else {
             alert("Game over!");
@@ -66,20 +74,43 @@ class App {
                             console.log(`Error: Tried to move forward when space was not empty`);
                         }
                     }
-                    else {
-                        if (turnParams.front == TileType.Other)
+                    else { // Infect attempt.
+                        if (turnParams.front != TileType.Enemy)
                         {
-                            this.board.tryInfect(critter, targetRow, targetColumn);
-                        }
-                        else {
                             // TODO: Error?
                             console.log(`Error: Tried to infect something that wasn't an enemy`);
+                        }
+                        else
+                        {                            
+                            let defender: CritterInstance = this.board.getAt(targetRow, targetColumn);
+                            if (!defender) { throw `No critter was at ${targetRow}, ${targetColumn}`; }
+                    
+                            let infectSuccessRate: number;
+                    
+                            switch (critter.direction) {
+                                case Direction.North: infectSuccessRate = (defender.direction == Direction.North) ? this.infectFromBehindRate : (defender.direction == Direction.South) ? this.infectFromFrontRate : this.infectFromSideRate; break;
+                                case Direction.East: infectSuccessRate = (defender.direction == Direction.East) ? this.infectFromBehindRate : (defender.direction == Direction.West) ? this.infectFromFrontRate : this.infectFromSideRate; break;
+                                case Direction.South: infectSuccessRate = (defender.direction == Direction.South) ? this.infectFromBehindRate : (defender.direction == Direction.North) ? this.infectFromFrontRate : this.infectFromSideRate; break;
+                                case Direction.West: infectSuccessRate = (defender.direction == Direction.West) ? this.infectFromBehindRate : (defender.direction == Direction.East) ? this.infectFromFrontRate : this.infectFromSideRate; break;
+                                default: throw `Unexpected direction: ${critter.direction}`;
+                            }
+                   
+                            if (Utilities.randomInt(100) < infectSuccessRate) {
+                                defender.critter = critter.critter.clone();
+                                this.board.moveTo(defender, defender.row, defender.column);
+                            }
+                            else {
+                                critter.critter = defender.critter.clone();
+                                this.board.moveTo(critter, critter.row, critter.column);
+                            }
                         }
                     }
                     break;
 
                 default: throw `Unexpected turn: ${turn}`;
             }
+
+            this.updateCritterUi(critter);
 
             if (!this.critters.some(item => item.critter.name != critter.critter.name)) {
                 this.gameOver = true;
@@ -88,25 +119,82 @@ class App {
         }
     }
 
+    updateCritterUi(critter: CritterInstance) {
+        critter.htmlElement.innerHTML = critter.critter.getHtml();
+
+        let baseCss: string = "critter";
+        switch (critter.direction) {
+            case Direction.North: baseCss += " facing-north"; break;
+            case Direction.East: baseCss += " facing-east"; break;
+            case Direction.South: baseCss += " facing-south"; break;
+            default: baseCss += " facing-west"; break;
+        }
+
+        critter.htmlElement.className = `${baseCss} ${critter.critter.getCssClass()}`;
+
+    }
+
+    initialize() {
+        this.board.initialize(<HTMLDivElement>document.getElementById("board"));
+
+        document.getElementById("reset").onclick = () => this.reset();
+        document.getElementById("run").onclick = () => this.run();
+
+        (<HTMLInputElement> document.getElementById("infectFromFrontRate")).value = this.infectFromFrontRate.toString();
+        (<HTMLInputElement> document.getElementById("infectFromSideRate")).value = this.infectFromSideRate.toString();
+        (<HTMLInputElement> document.getElementById("infectFromBehindRate")).value = this.infectFromBehindRate.toString();
+
+        this.reset();
+    }
+
+    reset() {
+        this.gameOver = false;
+        this.keepRunning = false;
+        this.board.reset();
+        this.critters = [];
+
+        this.infectFromFrontRate = parseInt((<HTMLInputElement> document.getElementById("infectFromFrontRate")).value);
+        this.infectFromSideRate = parseInt((<HTMLInputElement> document.getElementById("infectFromSideRate")).value);
+        this.infectFromBehindRate = parseInt((<HTMLInputElement> document.getElementById("infectFromBehindRate")).value);
+
+        try {
+            this.addCritters(new Bear(), "bearCount");
+            this.addCritters(new Tree(), "treeCount");
+            this.addCritters(new Rabbit(), "rabbitCount");
+            this.addCritters(new Carrot(), "carrotCount");
+        }
+        catch (e) {
+            alert(e);
+            return;
+        }
+
+        // Shuffle.
+        for (let lcv = 0; lcv < this.critters.length; lcv++) {
+            let critter = this.critters.splice(Utilities.randomInt(this.critters.length - lcv), 1)[0];
+            this.critters.push(critter);
+            this.updateCritterUi(critter);
+        }
+    }
+
+    addCritters(critter: ICritter, countInputName: string) {
+        let count: number = 30;
+        let countInput: HTMLInputElement = <HTMLInputElement> document.getElementById(countInputName);
+        if (countInput) {
+            count = parseInt(countInput.value);
+        }
+
+        for (let lcv: number = 0; lcv < count; lcv++) {
+            this.critters.push(this.board.insertRandom(critter.clone()));
+        }
+    }
+
     run() {
-        this.board.initialize();
-
-        for (let lcv: number = 0; lcv < 30; lcv++) {
-            this.critters.push(this.board.insertRandom(new Bear()));
+        this.keepRunning = !this.keepRunning;
+        if (this.keepRunning) {
+            this.nextTurn();
         }
 
-        for (let lcv: number = 0; lcv < 30; lcv++) {
-            this.critters.push(this.board.insertRandom(new Tree()));
-        }
-
-        for (let lcv: number = 0; lcv < 30; lcv++) {
-            this.critters.push(this.board.insertRandom(new Carrot()));
-        }
-
-        for (let lcv: number = 0; lcv < 30; lcv++) {
-            this.critters.push(this.board.insertRandom(new Rabbit()));
-        }
-
-        this.nextTurn();
+        let configurationDiv: HTMLElement = document.getElementById("configuration");
+        configurationDiv.hidden = this.keepRunning;
     }
 }

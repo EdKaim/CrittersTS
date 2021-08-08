@@ -2,8 +2,10 @@ class CritterInstance {
     public row: number;
     public column: number;
     public direction: Direction;
+    public htmlElement: HTMLElement;
 
-    constructor(public critter: CritterBase) {
+    constructor(public critter: ICritter) {
+        this.htmlElement = document.createElement("div");
     }
 
     getKey(): string {
