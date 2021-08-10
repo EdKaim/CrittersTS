@@ -156,16 +156,23 @@ class App {
 
         this.critterTypes.forEach((critter: ICritter) => {
             let critterDiv: HTMLElement = document.createElement("div");
+            critterDiv.classList.add("input-group");
+            critterDiv.classList.add("mb-3");
             critterConfig.appendChild(critterDiv);
 
-            let critterLabel: HTMLElement = document.createElement("label");
-            critterLabel.innerText = critter.name;
-            critterDiv.appendChild(critterLabel);
-
             let critterCountInput: HTMLInputElement = <HTMLInputElement> document.createElement("input");
+            critterCountInput.classList.add('form-control');
+            critterCountInput.type = "number";
+            critterCountInput.min = "0";
+            critterCountInput.max = "100";
             critterCountInput.value = "30";
             critterCountInput.id = `${critter.name}_Count`;
             critterDiv.appendChild(critterCountInput);
+
+            let critterCountSpan: HTMLInputElement = <HTMLInputElement> document.createElement("span");
+            critterCountSpan.classList.add("input-group-text");
+            critterCountSpan.innerText = `x ${critter.name}`;
+            critterDiv.appendChild(critterCountSpan);
         });
 
         this.reset();

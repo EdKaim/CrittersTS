@@ -1,5 +1,7 @@
+// These are hardcoded based on CSS settings. If those classes are changed, these
+// should be updated as well.
 const canvasHeight: number = 500;
-const canvasWidth: number = 1000;
+const canvasWidth: number = 800;
 const tileHeight: number = 20;
 const tileWidth: number = 20;
 

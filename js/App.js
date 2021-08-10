@@ -195,14 +195,21 @@ var App = /** @class */ (function () {
         var critterConfig = document.getElementById("critterConfiguration");
         this.critterTypes.forEach(function (critter) {
             var critterDiv = document.createElement("div");
+            critterDiv.classList.add("input-group");
+            critterDiv.classList.add("mb-3");
             critterConfig.appendChild(critterDiv);
-            var critterLabel = document.createElement("label");
-            critterLabel.innerText = critter.name;
-            critterDiv.appendChild(critterLabel);
             var critterCountInput = document.createElement("input");
+            critterCountInput.classList.add('form-control');
+            critterCountInput.type = "number";
+            critterCountInput.min = "0";
+            critterCountInput.max = "100";
             critterCountInput.value = "30";
             critterCountInput.id = critter.name + "_Count";
             critterDiv.appendChild(critterCountInput);
+            var critterCountSpan = document.createElement("span");
+            critterCountSpan.classList.add("input-group-text");
+            critterCountSpan.innerText = "x " + critter.name;
+            critterDiv.appendChild(critterCountSpan);
         });
         this.reset();
     };
@@ -375,8 +382,10 @@ var Tree = /** @class */ (function (_super) {
     };
     return Tree;
 }(CritterBase));
+// These are hardcoded based on CSS settings. If those classes are changed, these
+// should be updated as well.
 var canvasHeight = 500;
-var canvasWidth = 1000;
+var canvasWidth = 800;
 var tileHeight = 20;
 var tileWidth = 20;
 var Board = /** @class */ (function () {
