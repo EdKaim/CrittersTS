@@ -9,6 +9,14 @@ class App {
     infectFromSideRate: number = 75;
     infectFromBehindRate: number = 100;
 
+    critterTypes: ICritter[] = [
+        new Bear(),
+        new Carrot(),
+        new Mosquito(),
+        new Rabbit(),
+        new Tree()
+    ];
+
     public constructor() { }
 
     nextTurn() {
@@ -144,6 +152,22 @@ class App {
         (<HTMLInputElement> document.getElementById("infectFromSideRate")).value = this.infectFromSideRate.toString();
         (<HTMLInputElement> document.getElementById("infectFromBehindRate")).value = this.infectFromBehindRate.toString();
 
+        let critterConfig: HTMLElement = document.getElementById("critterConfiguration");
+
+        this.critterTypes.forEach((critter: ICritter) => {
+            let critterDiv: HTMLElement = document.createElement("div");
+            critterConfig.appendChild(critterDiv);
+
+            let critterLabel: HTMLElement = document.createElement("label");
+            critterLabel.innerText = critter.name;
+            critterDiv.appendChild(critterLabel);
+
+            let critterCountInput: HTMLInputElement = <HTMLInputElement> document.createElement("input");
+            critterCountInput.value = "30";
+            critterCountInput.id = `${critter.name}_Count`;
+            critterDiv.appendChild(critterCountInput);
+        });
+
         this.reset();
     }
 
@@ -157,16 +181,15 @@ class App {
         this.infectFromSideRate = parseInt((<HTMLInputElement> document.getElementById("infectFromSideRate")).value);
         this.infectFromBehindRate = parseInt((<HTMLInputElement> document.getElementById("infectFromBehindRate")).value);
 
-        try {
-            this.addCritters(new Bear(), "bearCount");
-            this.addCritters(new Tree(), "treeCount");
-            this.addCritters(new Rabbit(), "rabbitCount");
-            this.addCritters(new Carrot(), "carrotCount");
-        }
-        catch (e) {
-            alert(e);
-            return;
-        }
+        this.critterTypes.forEach((critter: ICritter) => {
+            try {
+                this.addCritters(critter);
+            }
+            catch (e) {
+                alert(e);
+                return;
+            }
+        });
 
         // Shuffle.
         for (let lcv = 0; lcv < this.critters.length; lcv++) {
@@ -176,9 +199,9 @@ class App {
         }
     }
 
-    addCritters(critter: ICritter, countInputName: string) {
+    addCritters(critter: ICritter) {
         let count: number = 30;
-        let countInput: HTMLInputElement = <HTMLInputElement> document.getElementById(countInputName);
+        let countInput: HTMLInputElement = <HTMLInputElement> document.getElementById(`${critter.name}_Count`);
         if (countInput) {
             count = parseInt(countInput.value);
         }

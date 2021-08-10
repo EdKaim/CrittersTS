@@ -22,6 +22,13 @@ var App = /** @class */ (function () {
         this.infectFromFrontRate = 50;
         this.infectFromSideRate = 75;
         this.infectFromBehindRate = 100;
+        this.critterTypes = [
+            new Bear(),
+            new Carrot(),
+            new Mosquito(),
+            new Rabbit(),
+            new Tree()
+        ];
     }
     App.prototype.nextTurn = function () {
         var _this = this;
@@ -185,9 +192,22 @@ var App = /** @class */ (function () {
         document.getElementById("infectFromFrontRate").value = this.infectFromFrontRate.toString();
         document.getElementById("infectFromSideRate").value = this.infectFromSideRate.toString();
         document.getElementById("infectFromBehindRate").value = this.infectFromBehindRate.toString();
+        var critterConfig = document.getElementById("critterConfiguration");
+        this.critterTypes.forEach(function (critter) {
+            var critterDiv = document.createElement("div");
+            critterConfig.appendChild(critterDiv);
+            var critterLabel = document.createElement("label");
+            critterLabel.innerText = critter.name;
+            critterDiv.appendChild(critterLabel);
+            var critterCountInput = document.createElement("input");
+            critterCountInput.value = "30";
+            critterCountInput.id = critter.name + "_Count";
+            critterDiv.appendChild(critterCountInput);
+        });
         this.reset();
     };
     App.prototype.reset = function () {
+        var _this = this;
         this.gameOver = false;
         this.keepRunning = false;
         this.board.reset();
@@ -195,16 +215,15 @@ var App = /** @class */ (function () {
         this.infectFromFrontRate = parseInt(document.getElementById("infectFromFrontRate").value);
         this.infectFromSideRate = parseInt(document.getElementById("infectFromSideRate").value);
         this.infectFromBehindRate = parseInt(document.getElementById("infectFromBehindRate").value);
-        try {
-            this.addCritters(new Bear(), "bearCount");
-            this.addCritters(new Tree(), "treeCount");
-            this.addCritters(new Rabbit(), "rabbitCount");
-            this.addCritters(new Carrot(), "carrotCount");
-        }
-        catch (e) {
-            alert(e);
-            return;
-        }
+        this.critterTypes.forEach(function (critter) {
+            try {
+                _this.addCritters(critter);
+            }
+            catch (e) {
+                alert(e);
+                return;
+            }
+        });
         // Shuffle.
         for (var lcv = 0; lcv < this.critters.length; lcv++) {
             var critter = this.critters.splice(Utilities.randomInt(this.critters.length - lcv), 1)[0];
@@ -212,9 +231,9 @@ var App = /** @class */ (function () {
             this.updateCritterUi(critter);
         }
     };
-    App.prototype.addCritters = function (critter, countInputName) {
+    App.prototype.addCritters = function (critter) {
         var count = 30;
-        var countInput = document.getElementById(countInputName);
+        var countInput = document.getElementById(critter.name + "_Count");
         if (countInput) {
             count = parseInt(countInput.value);
         }
@@ -287,6 +306,32 @@ var Carrot = /** @class */ (function (_super) {
         return Turn.TurnRight;
     };
     return Carrot;
+}(CritterBase));
+/// <reference path='./CritterBase.ts' />
+var Mosquito = /** @class */ (function (_super) {
+    __extends(Mosquito, _super);
+    function Mosquito() {
+        var _this = _super.call(this, "Mosquito") || this;
+        _this.getHtml = function () { return "M"; };
+        _this.getCssClass = function () { return "mosquito"; };
+        return _this;
+    }
+    Mosquito.prototype.takeTurn = function (turnParams) {
+        if (turnParams.front == TileType.Enemy) {
+            return Turn.Infect;
+        }
+        // Mosquitos move forward 2/3 of the time, otherwise they randomly move right or left.
+        if (turnParams.front == TileType.Empty) {
+            if (Utilities.randomInt(3) != 0) {
+                return Turn.MoveForward;
+            }
+        }
+        if (Utilities.randomInt(2) == 0) {
+            return Turn.TurnRight;
+        }
+        return Turn.TurnLeft;
+    };
+    return Mosquito;
 }(CritterBase));
 /// <reference path='./CritterBase.ts' />
 var Rabbit = /** @class */ (function (_super) {
