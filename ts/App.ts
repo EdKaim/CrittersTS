@@ -9,9 +9,13 @@ class App {
     infectFromSideRate: number = 75;
     infectFromBehindRate: number = 100;
 
+    turnsSinceLastMoveThreshold: number = 100;
+    turnsSinceLastMoveRate: number = 5;
+
     critterTypes: ICritter[] = [
         new Bear(),
         new Carrot(),
+        //new Dragon(),
         new Mosquito(),
         new Rabbit(),
         new Tree()
@@ -20,7 +24,7 @@ class App {
     public constructor() { }
 
     nextTurn() {
-        this.runTurns(this.critters.length);
+        this.runTurn();
 
         if (!this.gameOver) {
             if (this.keepRunning) {
@@ -28,14 +32,23 @@ class App {
             }
         }
         else {
-            alert("Game over!");
+            window.setTimeout(() => alert("Game over!"), 100);
         }
     }
 
-    runTurns(count: number) {
-        for (let lcv = 0; lcv < count; lcv++) {
-            let critter: CritterInstance = this.critters.shift();
-            this.critters.push(critter);
+    runTurn() {
+        for (let lcv = 0; lcv < this.critters.length; lcv++) {
+            let critter: CritterInstance = this.critters[lcv];
+            
+            // Sometimes a critter gets removed if it hasn't moved in a long time.
+            if (critter.turnsSinceLastMove++ > this.turnsSinceLastMoveThreshold) {
+                if (Utilities.randomInt(100) < this.turnsSinceLastMoveRate) {
+                    this.board.remove(critter);
+                    this.critters.splice(lcv--, 1);
+                    console.log(`A ${critter.critter.name} was randomly removed after not moving for ${critter.turnsSinceLastMove} turns`);
+                    continue;
+                }
+            }
 
             let turnParams: TurnParams = this.board.getTurnParams(critter);
             
@@ -74,6 +87,7 @@ class App {
 
                     if (turn == Turn.MoveForward) 
                     {
+                        critter.turnsSinceLastMove = 0;
                         if (turnParams.front == TileType.Empty) {
                             this.board.moveTo(critter, targetRow, targetColumn);
                         }
@@ -147,6 +161,7 @@ class App {
 
         document.getElementById("reset").onclick = () => this.reset();
         document.getElementById("run").onclick = () => this.run();
+        document.getElementById("runOneTurn").onclick = () => this.nextTurn();
 
         (<HTMLInputElement> document.getElementById("infectFromFrontRate")).value = this.infectFromFrontRate.toString();
         (<HTMLInputElement> document.getElementById("infectFromSideRate")).value = this.infectFromSideRate.toString();

@@ -68,6 +68,11 @@ class Board {
         (<any>critterInstance.htmlElement.style)["top"] = (row * tileHeight) + "px";
         (<any>critterInstance.htmlElement.style)["left"] = (column * tileWidth) + "px";
     }
+
+    remove(critter: CritterInstance) {
+        this.boardDiv.removeChild(critter.htmlElement);
+        delete this.map[CritterInstance.getKey(critter.row, critter.column)];
+    }
     
     getTurnParams(critter: CritterInstance): TurnParams {
         let turnParams: TurnParams = new TurnParams();

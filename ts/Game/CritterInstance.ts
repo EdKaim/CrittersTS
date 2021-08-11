@@ -3,6 +3,7 @@ class CritterInstance {
     public column: number;
     public direction: Direction;
     public htmlElement: HTMLElement;
+    public turnsSinceLastMove: number = 0;
 
     constructor(public critter: ICritter) {
         this.htmlElement = document.createElement("div");

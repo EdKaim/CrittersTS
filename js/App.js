@@ -22,9 +22,12 @@ var App = /** @class */ (function () {
         this.infectFromFrontRate = 50;
         this.infectFromSideRate = 75;
         this.infectFromBehindRate = 100;
+        this.turnsSinceLastMoveThreshold = 100;
+        this.turnsSinceLastMoveRate = 5;
         this.critterTypes = [
             new Bear(),
             new Carrot(),
+            //new Dragon(),
             new Mosquito(),
             new Rabbit(),
             new Tree()
@@ -32,20 +35,28 @@ var App = /** @class */ (function () {
     }
     App.prototype.nextTurn = function () {
         var _this = this;
-        this.runTurns(this.critters.length);
+        this.runTurn();
         if (!this.gameOver) {
             if (this.keepRunning) {
                 window.setTimeout(function () { return _this.nextTurn(); }, 100);
             }
         }
         else {
-            alert("Game over!");
+            window.setTimeout(function () { return alert("Game over!"); }, 100);
         }
     };
-    App.prototype.runTurns = function (count) {
+    App.prototype.runTurn = function () {
         var _loop_1 = function (lcv) {
-            var critter = this_1.critters.shift();
-            this_1.critters.push(critter);
+            var critter = this_1.critters[lcv];
+            // Sometimes a critter gets removed if it hasn't moved in a long time.
+            if (critter.turnsSinceLastMove++ > this_1.turnsSinceLastMoveThreshold) {
+                if (Utilities.randomInt(100) < this_1.turnsSinceLastMoveRate) {
+                    this_1.board.remove(critter);
+                    this_1.critters.splice(lcv--, 1);
+                    console.log("A " + critter.critter.name + " was randomly removed after not moving for " + critter.turnsSinceLastMove + " turns");
+                    return out_lcv_1 = lcv, "continue";
+                }
+            }
             var turnParams = this_1.board.getTurnParams(critter);
             var turn = critter.critter.takeTurn(turnParams);
             switch (turn) {
@@ -105,6 +116,7 @@ var App = /** @class */ (function () {
                             throw "Unexpected direction: " + critter.direction;
                     }
                     if (turn == Turn.MoveForward) {
+                        critter.turnsSinceLastMove = 0;
                         if (turnParams.front == TileType.Empty) {
                             this_1.board.moveTo(critter, targetRow, targetColumn);
                         }
@@ -157,10 +169,12 @@ var App = /** @class */ (function () {
                 this_1.gameOver = true;
                 return { value: void 0 };
             }
+            out_lcv_1 = lcv;
         };
-        var this_1 = this;
-        for (var lcv = 0; lcv < count; lcv++) {
+        var this_1 = this, out_lcv_1;
+        for (var lcv = 0; lcv < this.critters.length; lcv++) {
             var state_1 = _loop_1(lcv);
+            lcv = out_lcv_1;
             if (typeof state_1 === "object")
                 return state_1.value;
         }
@@ -189,6 +203,7 @@ var App = /** @class */ (function () {
         this.board.initialize(document.getElementById("board"));
         document.getElementById("reset").onclick = function () { return _this.reset(); };
         document.getElementById("run").onclick = function () { return _this.run(); };
+        document.getElementById("runOneTurn").onclick = function () { return _this.nextTurn(); };
         document.getElementById("infectFromFrontRate").value = this.infectFromFrontRate.toString();
         document.getElementById("infectFromSideRate").value = this.infectFromSideRate.toString();
         document.getElementById("infectFromBehindRate").value = this.infectFromBehindRate.toString();
@@ -313,6 +328,92 @@ var Carrot = /** @class */ (function (_super) {
         return Turn.TurnRight;
     };
     return Carrot;
+}(CritterBase));
+/// <reference path='./CritterBase.ts' />
+var Dragon = /** @class */ (function (_super) {
+    __extends(Dragon, _super);
+    function Dragon() {
+        var _this = _super.call(this, "Dragon") || this;
+        _this.getHtml = function () { return "D"; };
+        _this.getCssClass = function () { return "dragon"; };
+        _this.turns = 0;
+        return _this;
+    }
+    Dragon.prototype.takeTurn = function (turnParams) {
+        if (turnParams.front == TileType.Enemy) {
+            return Turn.Infect;
+        }
+        this.turns++;
+        if ((Math.floor(this.turns / 100) % 2) == 1) {
+            if (turnParams.front == TileType.Empty) {
+                return Turn.MoveForward;
+            }
+            return Turn.TurnRight;
+        }
+        var west;
+        var south;
+        switch (turnParams.direction) {
+            case Direction.North:
+                west = turnParams.left;
+                south = turnParams.back;
+                break;
+            case Direction.West:
+                west = turnParams.front;
+                south = turnParams.left;
+                break;
+            case Direction.South:
+                west = turnParams.right;
+                south = turnParams.front;
+                break;
+            case Direction.East:
+                west = turnParams.back;
+                south = turnParams.right;
+                break;
+        }
+        switch (turnParams.direction) {
+            case Direction.North:
+                switch (west) {
+                    case TileType.Empty:
+                    case TileType.Enemy:
+                        return Turn.TurnLeft;
+                }
+                return Turn.TurnRight;
+            case Direction.East:
+                switch (south) {
+                    case TileType.Empty:
+                    case TileType.Enemy:
+                        return Turn.TurnRight;
+                }
+                return Turn.TurnLeft;
+            case Direction.West:
+                switch (west) {
+                    case TileType.Empty: return Turn.MoveForward;
+                    case TileType.Enemy: return Turn.Infect;
+                }
+                switch (south) {
+                    case TileType.Empty:
+                    case TileType.Enemy:
+                        return Turn.TurnLeft;
+                    case TileType.Same:
+                    case TileType.Wall:
+                        return Turn.TurnRight;
+                }
+            case Direction.South:
+                switch (south) {
+                    case TileType.Empty: return Turn.MoveForward;
+                    case TileType.Enemy: return Turn.Infect;
+                }
+                switch (west) {
+                    case TileType.Empty:
+                    case TileType.Enemy:
+                        return Turn.TurnRight;
+                    case TileType.Same:
+                    case TileType.Wall:
+                        return Turn.TurnLeft;
+                }
+        }
+    };
+    return Dragon;
 }(CritterBase));
 /// <reference path='./CritterBase.ts' />
 var Mosquito = /** @class */ (function (_super) {
@@ -447,6 +548,10 @@ var Board = /** @class */ (function () {
         critterInstance.htmlElement.style["top"] = (row * tileHeight) + "px";
         critterInstance.htmlElement.style["left"] = (column * tileWidth) + "px";
     };
+    Board.prototype.remove = function (critter) {
+        this.boardDiv.removeChild(critter.htmlElement);
+        delete this.map[CritterInstance.getKey(critter.row, critter.column)];
+    };
     Board.prototype.getTurnParams = function (critter) {
         var turnParams = new TurnParams();
         turnParams.direction = critter.direction;
@@ -496,6 +601,7 @@ var Board = /** @class */ (function () {
 var CritterInstance = /** @class */ (function () {
     function CritterInstance(critter) {
         this.critter = critter;
+        this.turnsSinceLastMove = 0;
         this.htmlElement = document.createElement("div");
     }
     CritterInstance.prototype.getKey = function () {
