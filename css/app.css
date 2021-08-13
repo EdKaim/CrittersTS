@@ -35,8 +35,8 @@
 }
 
 .tree {
-    background-color: green;
-    color: white;
+    background-color: transparent;
+    color: darkgreen;
 }
 
 .carrot {
@@ -50,8 +50,8 @@
 }
 
 .mosquito {
-    background-color: black;
-    color: white;
+    background-color: transparent;
+    color: black;
 }
 
 .dragon {

@@ -1,7 +1,7 @@
 /// <reference path='./CritterBase.ts' />
 
 class Tree extends CritterBase {
-    getHtml = (): string => "T";
+    getHtml = (): string => `<i class="bi bi-tree-fill"></i>`;
     getCssClass = (): string => "tree";
 
     constructor() {

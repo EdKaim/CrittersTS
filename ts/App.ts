@@ -9,13 +9,13 @@ class App {
     infectFromSideRate: number = 75;
     infectFromBehindRate: number = 100;
 
-    turnsSinceLastMoveThreshold: number = 100;
-    turnsSinceLastMoveRate: number = 5;
+    unmovedCrittersDecayTurns: number = 100;
+    unmovedCrittersDecayRate: number = 0;
 
     critterTypes: ICritter[] = [
         new Bear(),
         new Carrot(),
-        //new Dragon(),
+        new Dragon(),
         new Mosquito(),
         new Rabbit(),
         new Tree()
@@ -41,8 +41,8 @@ class App {
             let critter: CritterInstance = this.critters[lcv];
             
             // Sometimes a critter gets removed if it hasn't moved in a long time.
-            if (critter.turnsSinceLastMove++ > this.turnsSinceLastMoveThreshold) {
-                if (Utilities.randomInt(100) < this.turnsSinceLastMoveRate) {
+            if (critter.turnsSinceLastMove++ > this.unmovedCrittersDecayTurns) {
+                if (Utilities.randomInt(100) < this.unmovedCrittersDecayRate) {
                     this.board.remove(critter);
                     this.critters.splice(lcv--, 1);
                     console.log(`A ${critter.critter.name} was randomly removed after not moving for ${critter.turnsSinceLastMove} turns`);

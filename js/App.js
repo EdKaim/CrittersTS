@@ -22,12 +22,12 @@ var App = /** @class */ (function () {
         this.infectFromFrontRate = 50;
         this.infectFromSideRate = 75;
         this.infectFromBehindRate = 100;
-        this.turnsSinceLastMoveThreshold = 100;
-        this.turnsSinceLastMoveRate = 5;
+        this.unmovedCrittersDecayTurns = 100;
+        this.unmovedCrittersDecayRate = 0;
         this.critterTypes = [
             new Bear(),
             new Carrot(),
-            //new Dragon(),
+            new Dragon(),
             new Mosquito(),
             new Rabbit(),
             new Tree()
@@ -49,8 +49,8 @@ var App = /** @class */ (function () {
         var _loop_1 = function (lcv) {
             var critter = this_1.critters[lcv];
             // Sometimes a critter gets removed if it hasn't moved in a long time.
-            if (critter.turnsSinceLastMove++ > this_1.turnsSinceLastMoveThreshold) {
-                if (Utilities.randomInt(100) < this_1.turnsSinceLastMoveRate) {
+            if (critter.turnsSinceLastMove++ > this_1.unmovedCrittersDecayTurns) {
+                if (Utilities.randomInt(100) < this_1.unmovedCrittersDecayRate) {
                     this_1.board.remove(critter);
                     this_1.critters.splice(lcv--, 1);
                     console.log("A " + critter.critter.name + " was randomly removed after not moving for " + critter.turnsSinceLastMove + " turns");
@@ -304,6 +304,12 @@ var Bear = /** @class */ (function (_super) {
         if (turnParams.front == TileType.Enemy) {
             return Turn.Infect;
         }
+        if (turnParams.left == TileType.Enemy) {
+            return Turn.TurnLeft;
+        }
+        if (turnParams.right == TileType.Enemy) {
+            return Turn.TurnRight;
+        }
         if (turnParams.front == TileType.Empty) {
             return Turn.MoveForward;
         }
@@ -420,13 +426,19 @@ var Mosquito = /** @class */ (function (_super) {
     __extends(Mosquito, _super);
     function Mosquito() {
         var _this = _super.call(this, "Mosquito") || this;
-        _this.getHtml = function () { return "M"; };
+        _this.getHtml = function () { return "<i class=\"bi bi-twitter\"></i>"; };
         _this.getCssClass = function () { return "mosquito"; };
         return _this;
     }
     Mosquito.prototype.takeTurn = function (turnParams) {
         if (turnParams.front == TileType.Enemy) {
             return Turn.Infect;
+        }
+        if (turnParams.left == TileType.Enemy) {
+            return Turn.TurnLeft;
+        }
+        if (turnParams.right == TileType.Enemy) {
+            return Turn.TurnRight;
         }
         // Mosquitos move forward 2/3 of the time, otherwise they randomly move right or left.
         if (turnParams.front == TileType.Empty) {
@@ -455,6 +467,12 @@ var Rabbit = /** @class */ (function (_super) {
         if (turnParams.front == TileType.Enemy) {
             return Turn.Infect;
         }
+        if (turnParams.left == TileType.Enemy) {
+            return Turn.TurnLeft;
+        }
+        if (turnParams.right == TileType.Enemy) {
+            return Turn.TurnRight;
+        }
         if (turnParams.front == TileType.Empty) {
             return Turn.MoveForward;
         }
@@ -467,7 +485,7 @@ var Tree = /** @class */ (function (_super) {
     __extends(Tree, _super);
     function Tree() {
         var _this = _super.call(this, "Tree") || this;
-        _this.getHtml = function () { return "T"; };
+        _this.getHtml = function () { return "<i class=\"bi bi-tree-fill\"></i>"; };
         _this.getCssClass = function () { return "tree"; };
         return _this;
     }

@@ -1,7 +1,7 @@
 /// <reference path='./CritterBase.ts' />
 
 class Dragon extends CritterBase {
-    getHtml = (): string => "D";
+    getHtml = (): string => `D`;
     getCssClass = (): string => "dragon";
 
     turns: number = 0;
