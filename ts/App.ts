@@ -10,7 +10,7 @@ class App {
     infectFromBehindRate: number = 100;
 
     unmovedCrittersDecayTurns: number = 100;
-    unmovedCrittersDecayRate: number = 0;
+    unmovedCrittersDecayRate: number = 5;
 
     critterTypes: ICritter[] = [
         new Bear(),
@@ -163,6 +163,8 @@ class App {
         document.getElementById("run").onclick = () => this.run();
         document.getElementById("runOneTurn").onclick = () => this.nextTurn();
 
+        (<HTMLInputElement> document.getElementById("unmovedCrittersDecayTurns")).value = this.unmovedCrittersDecayTurns.toString();
+        (<HTMLInputElement> document.getElementById("unmovedCrittersDecayRate")).value = this.unmovedCrittersDecayRate.toString();
         (<HTMLInputElement> document.getElementById("infectFromFrontRate")).value = this.infectFromFrontRate.toString();
         (<HTMLInputElement> document.getElementById("infectFromSideRate")).value = this.infectFromSideRate.toString();
         (<HTMLInputElement> document.getElementById("infectFromBehindRate")).value = this.infectFromBehindRate.toString();
@@ -199,6 +201,8 @@ class App {
         this.board.reset();
         this.critters = [];
 
+        this.unmovedCrittersDecayTurns = parseInt((<HTMLInputElement> document.getElementById("unmovedCrittersDecayTurns")).value);
+        this.unmovedCrittersDecayRate = parseInt((<HTMLInputElement> document.getElementById("unmovedCrittersDecayRate")).value);
         this.infectFromFrontRate = parseInt((<HTMLInputElement> document.getElementById("infectFromFrontRate")).value);
         this.infectFromSideRate = parseInt((<HTMLInputElement> document.getElementById("infectFromSideRate")).value);
         this.infectFromBehindRate = parseInt((<HTMLInputElement> document.getElementById("infectFromBehindRate")).value);

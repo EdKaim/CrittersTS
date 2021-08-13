@@ -30,6 +30,19 @@
                     <div class="col-4">
                         <h2>Simulation Settings</h2>
                         <div>
+                            <label>Turns Until Unmoving Critters Risk Decay</label>
+                            <input id="unmovedCrittersDecayTurns" type="number" class="form-control" min="0" value="100" />
+                        </div>
+
+                        <div>
+                            <label>Unmoving Critter Decay Risk (0 to disable)</label>
+                            <div class="input-group mb-3">
+                                <input id="unmovedCrittersDecayRate" type="number" class="form-control" min="0" max="100" value="5" />
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+
+                        <div>
                             <label>Infect From Front Rate</label>
                             <div class="input-group mb-3">
                                 <input id="infectFromFrontRate" type="number" class="form-control" min="0" max="100" value="50" />

@@ -23,7 +23,7 @@ var App = /** @class */ (function () {
         this.infectFromSideRate = 75;
         this.infectFromBehindRate = 100;
         this.unmovedCrittersDecayTurns = 100;
-        this.unmovedCrittersDecayRate = 0;
+        this.unmovedCrittersDecayRate = 5;
         this.critterTypes = [
             new Bear(),
             new Carrot(),
@@ -204,6 +204,8 @@ var App = /** @class */ (function () {
         document.getElementById("reset").onclick = function () { return _this.reset(); };
         document.getElementById("run").onclick = function () { return _this.run(); };
         document.getElementById("runOneTurn").onclick = function () { return _this.nextTurn(); };
+        document.getElementById("unmovedCrittersDecayTurns").value = this.unmovedCrittersDecayTurns.toString();
+        document.getElementById("unmovedCrittersDecayRate").value = this.unmovedCrittersDecayRate.toString();
         document.getElementById("infectFromFrontRate").value = this.infectFromFrontRate.toString();
         document.getElementById("infectFromSideRate").value = this.infectFromSideRate.toString();
         document.getElementById("infectFromBehindRate").value = this.infectFromBehindRate.toString();
@@ -234,6 +236,8 @@ var App = /** @class */ (function () {
         this.keepRunning = false;
         this.board.reset();
         this.critters = [];
+        this.unmovedCrittersDecayTurns = parseInt(document.getElementById("unmovedCrittersDecayTurns").value);
+        this.unmovedCrittersDecayRate = parseInt(document.getElementById("unmovedCrittersDecayRate").value);
         this.infectFromFrontRate = parseInt(document.getElementById("infectFromFrontRate").value);
         this.infectFromSideRate = parseInt(document.getElementById("infectFromSideRate").value);
         this.infectFromBehindRate = parseInt(document.getElementById("infectFromBehindRate").value);
